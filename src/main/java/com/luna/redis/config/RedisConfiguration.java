@@ -1,8 +1,8 @@
-package com.luna.redis.redis.config;
+package com.luna.redis.config;
 
-import com.luna.redis.redis.util.RedisBoundUtil;
-import com.luna.redis.redis.util.RedisKeyUtil;
-import com.luna.redis.redis.util.RedisOpsUtil;
+import com.luna.redis.util.RedisBoundUtil;
+import com.luna.redis.util.RedisKeyUtil;
+import com.luna.redis.util.RedisOpsUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;

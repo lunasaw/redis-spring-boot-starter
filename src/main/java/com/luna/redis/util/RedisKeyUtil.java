@@ -1,4 +1,4 @@
-package com.luna.redis.redis.util;
+package com.luna.redis.util;
 
 import java.util.ArrayList;
 import java.util.Collection;

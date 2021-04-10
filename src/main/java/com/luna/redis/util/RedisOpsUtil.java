@@ -1,4 +1,4 @@
-package com.luna.redis.redis.util;
+package com.luna.redis.util;
 
 import java.util.List;
 import java.util.Map;

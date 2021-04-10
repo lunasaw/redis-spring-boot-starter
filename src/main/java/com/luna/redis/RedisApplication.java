@@ -1,4 +1,4 @@
-package com.luna.redis.redis;
+package com.luna.redis;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

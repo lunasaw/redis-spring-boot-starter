@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.luna.redis.config.Configuration
+com.luna.redis.config.RedisConfiguration
