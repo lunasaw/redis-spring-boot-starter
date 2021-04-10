@@ -7,7 +7,7 @@
     <groupId>com.github.czy1024</groupId>
     <artifactId>redis-spring-boot-starter</artifactId>
     <name>redis-spring-boot-starter</name>
-    <version>1.0.2</version>
+    <version>1.0.4</version>
     <description>redis easy todo</description>
     <url>https://github.com/czy1024/redis-spring-boot-starter</url>
     <properties>

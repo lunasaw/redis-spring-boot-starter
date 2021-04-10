@@ -1,8 +1,6 @@
 package com.luna.redis.config;
 
-import com.luna.redis.util.RedisBoundUtil;
-import com.luna.redis.util.RedisKeyUtil;
-import com.luna.redis.util.RedisOpsUtil;
+import com.luna.redis.util.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -53,7 +51,22 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisOpsUtil redisOpsUtil() {
-        return new RedisOpsUtil();
+    public RedisListUtil redisListUtil() {
+        return new RedisListUtil();
+    }
+
+    @Bean
+    public RedisHashUtil redisHashUtil() {
+        return new RedisHashUtil();
+    }
+
+    @Bean
+    public RedisSetUtil redisSetUtil() {
+        return new RedisSetUtil();
+    }
+
+    @Bean
+    public RedisValueUtil redisValueUtil() {
+        return new RedisValueUtil();
     }
 }

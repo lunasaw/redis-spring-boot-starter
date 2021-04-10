@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,35 +21,40 @@ public class RedisKeyUtil {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-    // =============================common============================
     /**
      * 指定缓存失效时间
      *
      * @param key 键
      * @param time 时间(秒)
+     * @param timeUnit
      * @return
      */
-    public boolean expire(String key, long time) {
-        try {
-            if (time > 0) {
-                redisTemplate.expire(key, time, TimeUnit.SECONDS);
-            }
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    public boolean expire(String key, long time, TimeUnit timeUnit) {
+        if (timeUnit != null) {
+            return redisTemplate.expire(key, time, timeUnit);
         }
+        return redisTemplate.expire(key, time, TimeUnit.SECONDS);
     }
 
     /**
      * 返回模糊匹配的key
      * 
-     * @param key
+     * @param key List<String>
      * @return
      */
-    public List<String> getKeys(String key) {
+    public List<String> getKeysWithList(String key) {
         Set<String> keys = redisTemplate.keys(key);
         return new ArrayList<>(keys);
+    }
+
+    /**
+     * 返回模糊匹配的key 不重复
+     * 
+     * @param key Set<String>
+     * @return
+     */
+    public Set<String> getKeysWithSet(String key) {
+        return redisTemplate.keys(key);
     }
 
     /**
@@ -59,8 +63,21 @@ public class RedisKeyUtil {
      * @param key 键 不能为null
      * @return 时间(秒) 返回0代表为永久有效
      */
+    public long getExpire(String key, TimeUnit timeUnit) {
+        if (timeUnit == null) {
+            return redisTemplate.getExpire(key, TimeUnit.SECONDS);
+        }
+        return redisTemplate.getExpire(key, timeUnit);
+    }
+
+    /**
+     * 根据key 获取过期时间
+     * 
+     * @param key
+     * @return
+     */
     public long getExpire(String key) {
-        return redisTemplate.getExpire(key, TimeUnit.SECONDS);
+        return getExpire(key, null);
     }
 
     /**
@@ -70,12 +87,7 @@ public class RedisKeyUtil {
      * @return true 存在 false不存在
      */
     public boolean hasKey(String key) {
-        try {
-            return redisTemplate.hasKey(key);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+        return redisTemplate.hasKey(key);
     }
 
     /**
@@ -83,24 +95,24 @@ public class RedisKeyUtil {
      *
      * @param key
      */
-    public void persistKey(String key) {
-        redisTemplate.persist(key);
+    public boolean persistKey(String key) {
+        return redisTemplate.persist(key);
     }
 
     /**
-     * 删除缓存
+     * 删除key
      *
      * @param key 可以传一个值 或多个
      */
-    @SuppressWarnings("unchecked")
-    public void del(String... key) {
+    public boolean delete(String... key) {
         if (key != null && key.length > 0) {
             if (key.length == 1) {
-                redisTemplate.delete(key[0]);
+                return redisTemplate.delete(key[0]);
             } else {
-                redisTemplate.delete(CollectionUtils.arrayToList(key));
+                return redisTemplate.delete(CollectionUtils.arrayToList(key)) > 0;
             }
         }
+        return false;
     }
 
     /**
@@ -115,69 +127,27 @@ public class RedisKeyUtil {
     }
 
     /**
-     * 删除key
-     *
-     * @param key
-     */
-    public void deleteKey(String key) {
-        redisTemplate.delete(key);
-    }
-
-    /**
-     * 删除多个key
-     *
-     * @param keys
-     */
-    public void deleteKey(String... keys) {
-        Set<String> kSet = Stream.of(keys).map(k -> k).collect(Collectors.toSet());
-        redisTemplate.delete(kSet);
-    }
-
-    /**
      * 删除Key的集合
      *
      * @param keys
      */
-    public void deleteKey(Collection<String> keys) {
-        Set<String> kSet = keys.stream().map(k -> k).collect(Collectors.toSet());
-        redisTemplate.delete(kSet);
+    public boolean deleteKey(Collection<String> keys) {
+        return redisTemplate.delete(keys) == keys.size();
     }
 
     /**
      * redis的key
-     * 形式为：
+     * 可形式为：
      * 表名:主键名:主键值:列名
-     *
-     * @param tableName 表名
-     * @param majorKey 主键名
-     * @param majorKeyValue 主键值
-     * @param column 列名
+     * 
      * @return
      */
-    public static String getKeyWithColumn(String tableName, String majorKey, String majorKeyValue, String column) {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(tableName).append(":");
-        buffer.append(majorKey).append(":");
-        buffer.append(majorKeyValue).append(":");
-        buffer.append(column);
-        return buffer.toString();
-    }
-
-    /**
-     * redis的key
-     * 形式为：
-     * 表名:主键名:主键值
-     *
-     * @param tableName 表名
-     * @param majorKey 主键名
-     * @param majorKeyValue 主键值
-     * @return
-     */
-    public static String getKey(String tableName, String majorKey, String majorKeyValue) {
-        StringBuffer buffer = new StringBuffer();
-        buffer.append(tableName).append(":");
-        buffer.append(majorKey).append(":");
-        buffer.append(majorKeyValue).append(":");
-        return buffer.toString();
+    public static String getKey(String... key) {
+        StringBuilder builder = new StringBuilder();
+        for (String s : key) {
+            builder.append(s).append(":");
+        }
+        String s = builder.toString();
+        return s.substring(0, s.length() - 1);
     }
 }

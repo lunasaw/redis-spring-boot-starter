@@ -180,11 +180,11 @@ public class RedisBoundUtil {
      * @param time 时间(秒)
      * @return true成功 false失败
      */
-    public boolean hmset(String key, Map<String, Object> map, long time) {
+    public boolean hmset(String key, Map<String, Object> map, long time, TimeUnit timeUnit) {
         try {
             redisTemplate.boundHashOps(key).putAll(map);
             if (time > 0) {
-                redisKeyUtil.expire(key, time);
+                redisKeyUtil.expire(key, time, timeUnit);
             }
             return true;
         } catch (Exception e) {
@@ -220,11 +220,11 @@ public class RedisBoundUtil {
      * @param time 时间(秒) 注意:如果已存在的hash表有时间,这里将会替换原有的时间
      * @return true 成功 false失败
      */
-    public boolean hset(String key, String item, Object value, long time) {
+    public boolean hset(String key, String item, Object value, long time, TimeUnit timeUnit) {
         try {
             redisTemplate.boundHashOps(key).put(item, value);
             if (time > 0) {
-                redisKeyUtil.expire(key, time);
+                redisKeyUtil.expire(key, time, timeUnit);
             }
             return true;
         } catch (Exception e) {
@@ -334,17 +334,12 @@ public class RedisBoundUtil {
      * @param values 值 可以是多个
      * @return 成功个数
      */
-    public long sSetAndTime(String key, long time, Object... values) {
-        try {
-            Long count = redisTemplate.boundSetOps(key).add(values);
-            if (time > 0) {
-                redisKeyUtil.expire(key, time);
-            }
-            return count;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
+    public long sSetAndTime(String key, long time, TimeUnit timeUnit, Object... values) {
+        Long count = redisTemplate.boundSetOps(key).add(values);
+        if (time > 0) {
+            redisKeyUtil.expire(key, time, timeUnit);
         }
+        return count;
     }
 
     /**
@@ -354,12 +349,7 @@ public class RedisBoundUtil {
      * @return
      */
     public long sGetSetSize(String key) {
-        try {
-            return redisTemplate.boundSetOps(key).size();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
+        return redisTemplate.boundSetOps(key).size();
     }
 
     /**
@@ -499,11 +489,11 @@ public class RedisBoundUtil {
      * @param time 时间(秒)
      * @return
      */
-    public boolean lSet(String key, Object value, long time) {
+    public boolean lSet(String key, Object value, long time, TimeUnit timeUnit) {
         try {
             redisTemplate.boundListOps(key).leftPush(value);
             if (time > 0) {
-                redisKeyUtil.expire(key, time);
+                redisKeyUtil.expire(key, time, timeUnit);
             }
             return true;
         } catch (Exception e) {
@@ -520,11 +510,11 @@ public class RedisBoundUtil {
      * @param time 时间(秒)
      * @return
      */
-    public boolean rSet(String key, Object value, long time) {
+    public boolean rSet(String key, Object value, long time, TimeUnit timeUnit) {
         try {
             redisTemplate.boundListOps(key).rightPush(value);
             if (time > 0) {
-                redisKeyUtil.expire(key, time);
+                redisKeyUtil.expire(key, time, timeUnit);
             }
             return true;
         } catch (Exception e) {
@@ -540,14 +530,8 @@ public class RedisBoundUtil {
      * @param value 值
      * @return
      */
-    public boolean rSet(String key, List<Object> value) {
-        try {
-            redisTemplate.boundListOps(key).rightPushAll(value);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    public boolean rightSet(String key, List<Object> value) {
+        return redisTemplate.boundListOps(key).rightPushAll(value) == value.size();
     }
 
     /**
@@ -557,14 +541,8 @@ public class RedisBoundUtil {
      * @param value 值
      * @return
      */
-    public boolean lSet(String key, List<Object> value) {
-        try {
-            redisTemplate.boundListOps(key).leftPushAll(value);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    public boolean leftSet(String key, List<Object> value) {
+        return redisTemplate.boundListOps(key).leftPushAll(value) == value.size();
     }
 
     /**
@@ -575,17 +553,12 @@ public class RedisBoundUtil {
      * @param time 时间(秒)
      * @return
      */
-    public boolean rSet(String key, List<Object> value, long time) {
-        try {
-            redisTemplate.boundListOps(key).rightPushAll(value);
-            if (time > 0) {
-                redisKeyUtil.expire(key, time);
-            }
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    public boolean rightSet(String key, List<Object> value, long time, TimeUnit timeUnit) {
+        redisTemplate.boundListOps(key).rightPushAll(value);
+        if (time > 0) {
+            return redisKeyUtil.expire(key, time, timeUnit);
         }
+        return redisKeyUtil.expire(key, -1, timeUnit);
     }
 
     /**
@@ -596,17 +569,12 @@ public class RedisBoundUtil {
      * @param time 时间(秒)
      * @return
      */
-    public boolean lSet(String key, List<Object> value, long time) {
-        try {
-            redisTemplate.boundListOps(key).leftPushAll(value);
-            if (time > 0) {
-                redisKeyUtil.expire(key, time);
-            }
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    public boolean leftSet(String key, List<Object> value, long time, TimeUnit timeUnit) {
+        redisTemplate.boundListOps(key).leftPushAll(value);
+        if (time > 0) {
+            redisKeyUtil.expire(key, time, timeUnit);
         }
+        return redisKeyUtil.expire(key, -1, timeUnit);
     }
 
     /**
@@ -617,14 +585,8 @@ public class RedisBoundUtil {
      * @param value 值
      * @return
      */
-    public boolean lUpdateIndex(String key, long index, Object value) {
-        try {
-            redisTemplate.boundListOps(key).set(index, value);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    public void lUpdateIndex(String key, long index, Object value) {
+        redisTemplate.boundListOps(key).set(index, value);
     }
 
     /**
@@ -636,12 +598,6 @@ public class RedisBoundUtil {
      * @return 移除的个数
      */
     public long lRemove(String key, long count, Object value) {
-        try {
-            Long remove = redisTemplate.boundListOps(key).remove(count, value);
-            return remove;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
-        }
+        return redisTemplate.boundListOps(key).remove(count, value);
     }
 }
