@@ -3,6 +3,7 @@ package com.luna.redis.util;
 import org.checkerframework.checker.units.qual.K;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
@@ -13,13 +14,11 @@ import java.util.concurrent.TimeUnit;
  * @author luna@mac
  * 2021年04月10日 19:52
  */
+@Component
 public class RedisValueUtil {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-
-    @Autowired
-    private RedisKeyUtil                  redisKeyUtil;
 
     /**
      * 普通缓存获取 根据 key 获取对应的value 如果key不存在则返回null

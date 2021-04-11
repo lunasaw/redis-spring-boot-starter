@@ -58,7 +58,7 @@ public class RedisHashUtil {
      * @param time 时间(秒)
      * @return true成功 false失败
      */
-    public boolean hmset(String key, Map<String, Object> map, long time, TimeUnit timeUnit) {
+    public boolean set(String key, Map<String, Object> map, long time, TimeUnit timeUnit) {
         set(key, map);
         return redisKeyUtil.expire(key, time, timeUnit);
     }

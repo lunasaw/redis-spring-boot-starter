@@ -1,6 +1,7 @@
 package com.luna.redis.config;
 
 import com.luna.redis.util.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -41,32 +42,50 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public RedisBoundUtil redisBoundUtil() {
-        return new RedisBoundUtil();
+    @ConditionalOnMissingBean
+    public RedisZSetUtil redisZSetUtil() {
+        return new RedisZSetUtil();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public RedisKeyUtil redisKeyUtil() {
         return new RedisKeyUtil();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public RedisListUtil redisListUtil() {
         return new RedisListUtil();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public RedisHashUtil redisHashUtil() {
         return new RedisHashUtil();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public RedisSetUtil redisSetUtil() {
         return new RedisSetUtil();
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public RedisValueUtil redisValueUtil() {
         return new RedisValueUtil();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RedisGeoUtil redisGeoUtil() {
+        return new RedisGeoUtil();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RedisStreamUtil redisStreamUtil() {
+        return new RedisStreamUtil();
     }
 }
