@@ -68,6 +68,10 @@ public class RedisKeyUtil {
         return redisTemplate.expire(key, time, TimeUnit.SECONDS);
     }
 
+    public boolean expire(String key, long time) {
+        return redisTemplate.expire(key, time, null);
+    }
+
     /**
      * 返回模糊匹配的key
      * 
