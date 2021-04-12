@@ -7,7 +7,10 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.checkerframework.checker.units.qual.K;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -20,6 +23,35 @@ public class RedisKeyUtil {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+
+    /**
+     * 移动key到指定DB
+     * 
+     * @param key
+     * @param dbIndex
+     * @return
+     */
+    public boolean method(String key, final int dbIndex) {
+        return redisTemplate.move(key, dbIndex);
+    }
+
+    /**
+     * 清除所选择数据库
+     */
+    public void flushDb() {
+        RedisConnectionFactory connectionFactory = redisTemplate.getConnectionFactory();
+        RedisConnection connection = connectionFactory.getConnection();
+        connection.flushDb();
+    }
+
+    /**
+     * 清除所有数据库
+     */
+    public void flushAll() {
+        RedisConnectionFactory connectionFactory = redisTemplate.getConnectionFactory();
+        RedisConnection connection = connectionFactory.getConnection();
+        connection.flushAll();
+    }
 
     /**
      * 指定缓存失效时间
@@ -42,9 +74,16 @@ public class RedisKeyUtil {
      * @param key List<String>
      * @return
      */
-    public List<String> getKeysWithList(String key) {
-        Set<String> keys = redisTemplate.keys(key);
-        return new ArrayList<>(keys);
+    public Set<String> getKeysWithList(String key) {
+        return redisTemplate.keys(key);
+    }
+
+    /**
+     * 清空所有键
+     */
+    public void cleanAll() {
+        Set<String> keys = redisTemplate.keys("*");
+        delete(keys);
     }
 
     /**
@@ -91,6 +130,16 @@ public class RedisKeyUtil {
     }
 
     /**
+     * 返回集合中存在的key
+     * 
+     * @param keys
+     * @return
+     */
+    public Long countExistingKeys(Collection<String> keys) {
+        return redisTemplate.countExistingKeys(keys);
+    }
+
+    /**
      * 将key设置为永久有效
      *
      * @param key
@@ -102,17 +151,10 @@ public class RedisKeyUtil {
     /**
      * 删除key
      *
-     * @param key 可以传一个值 或多个
+     * @param keys 可以传一个值 或多个
      */
-    public boolean delete(String... key) {
-        if (key != null && key.length > 0) {
-            if (key.length == 1) {
-                return redisTemplate.delete(key[0]);
-            } else {
-                return redisTemplate.delete(CollectionUtils.arrayToList(key)) > 0;
-            }
-        }
-        return false;
+    public Long delete(Collection<String> keys) {
+        return redisTemplate.delete(keys);
     }
 
     /**

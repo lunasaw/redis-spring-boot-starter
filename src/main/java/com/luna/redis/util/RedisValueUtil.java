@@ -3,6 +3,7 @@ package com.luna.redis.util;
 import org.checkerframework.checker.units.qual.K;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -28,6 +29,37 @@ public class RedisValueUtil {
      */
     public Object get(String key) {
         return redisTemplate.opsForValue().get(key);
+    }
+
+    /**
+     * 移位操作 获取bit
+     * 
+     * @param key
+     * @param offset
+     */
+    public boolean getBit(String key, long offset) {
+        return redisTemplate.opsForValue().getBit(key, offset);
+    }
+
+    /**
+     * 获取当前位上的值
+     * 
+     * @param key
+     * @param offset
+     * @param value
+     */
+    public boolean setBit(String key, long offset, boolean value) {
+        return redisTemplate.opsForValue().setBit(key, offset, value);
+    }
+
+    /**
+     * 计数
+     * 
+     * @param key
+     * @return
+     */
+    public Long size(String key) {
+        return redisTemplate.opsForValue().size(key);
     }
 
     /**
