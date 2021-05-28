@@ -68,8 +68,15 @@ public class RedisKeyUtil {
         return redisTemplate.expire(key, time, TimeUnit.SECONDS);
     }
 
+    /**
+     * 指定缓存失效时间
+     *
+     * @param key 键
+     * @param time 时间(秒)
+     * @return
+     */
     public boolean expire(String key, long time) {
-        return redisTemplate.expire(key, time, null);
+        return expire(key, time, null);
     }
 
     /**
