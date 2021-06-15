@@ -169,6 +169,17 @@ public class RedisKeyUtil {
     }
 
     /**
+     * 删除key
+     *
+     * @param keys 可以传一个值 或多个
+     */
+    public void delete(String... keys) {
+        for (String key : keys) {
+            redisTemplate.delete(key);
+        }
+    }
+
+    /**
      * newKey不存在时才重命名
      *
      * @param oldKey

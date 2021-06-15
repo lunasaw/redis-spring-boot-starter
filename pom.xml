@@ -4,12 +4,12 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.czy1024</groupId>
+    <groupId>io.github.lunasaw</groupId>
     <artifactId>redis-spring-boot-starter</artifactId>
     <name>redis-spring-boot-starter</name>
-    <version>1.0.6</version>
+    <version>1.1.0</version>
     <description>redis easy todo</description>
-    <url>https://github.com/czy1024/redis-spring-boot-starter</url>
+    <url>https://github.com/lunasaw/redis-spring-boot-starter</url>
     <properties>
         <maven.test.skip>true</maven.test.skip>
         <java.version>1.8</java.version>
@@ -51,9 +51,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.czy1024</groupId>
+            <groupId>io.github.lunasaw</groupId>
+            <artifactId>json-jackson</artifactId>
+            <version>1.1.0-RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.lunasaw</groupId>
             <artifactId>luna-common</artifactId>
-            <version>1.0.8</version>
+            <version>1.3.2</version>
         </dependency>
     </dependencies>
 
@@ -84,9 +90,9 @@
 
 
     <scm>
-        <url>https://github.com/czy1024/redis-spring-boot-starter</url>
-        <connection>scm:git:https://github.com/czy1024/redis-spring-boot-starter.git</connection>
-        <developerConnection>scm:git:https://github.com/czy1024/redis-spring-boot-starter</developerConnection>
+        <url>https://github.com/lunasaw/redis-spring-boot-starter</url>
+        <connection>scm:git:https://github.com/lunasaw/redis-spring-boot-starter.git</connection>
+        <developerConnection>scm:git:https://github.com/lunasaw/redis-spring-boot-starter</developerConnection>
     </scm>
     <profiles>
         <profile>
