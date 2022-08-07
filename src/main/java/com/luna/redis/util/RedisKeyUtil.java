@@ -31,7 +31,7 @@ public class RedisKeyUtil {
      * @param dbIndex
      * @return
      */
-    public boolean method(String key, final int dbIndex) {
+    public boolean move(String key, final int dbIndex) {
         return redisTemplate.move(key, dbIndex);
     }
 

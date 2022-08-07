@@ -1,9 +1,12 @@
 package com.luna.redis.util;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisZSetCommands;
 import org.springframework.data.redis.core.*;
@@ -22,31 +25,50 @@ public class RedisZSetUtil {
     /**
      * 将数据放入zset缓存
      *
-     * @param key 键
-     * @param values 值 可以是多个
+     * @param key    键
+     * @param values 值
      * @return 成功个数
      */
     public boolean add(String key, Object values, Double score) {
-        return redisTemplate.opsForZSet().add(key, values, score);
+        return Boolean.TRUE.equals(redisTemplate.opsForZSet().add(key, values, score));
     }
 
     /**
      * 多元素添加
-     * 
+     *
      * @param key
      * @param maps Map<数据, 权重>
      */
     public void add(String key, Map<Object, Double> maps) {
-        Set<ZSetOperations.TypedTuple<Object>> sets = Sets.newHashSet();
-        maps.entrySet().stream().forEach(map -> {
-            sets.add(new DefaultTypedTuple<>(map.getKey(), map.getValue()));
-        });
-        redisTemplate.opsForZSet().add(key, sets);
+        Set<ZSetOperations.TypedTuple<Object>> typedTuples = maps.entrySet().stream()
+                .map(e -> new DefaultTypedTuple<>(e.getKey(), e.getValue())).collect(Collectors.toSet());
+        redisTemplate.opsForZSet().add(key, typedTuples);
+    }
+
+    /**
+     * 匹配获取键值对，ScanOptions.NONE为获取全部键值对；ScanOptions.scanOptions().match("C").build()匹配获取键位map1的键值对,不能模糊匹配。
+     *
+     * @param key
+     * @param count
+     * @param pattern
+     * @return
+     */
+    public Map<Object, Double> scan(String key, Long count, String pattern) {
+        ScanOptions match = ScanOptions.scanOptions().count(count).match(pattern).build();
+        Cursor<ZSetOperations.TypedTuple<Object>> cursor = redisTemplate.opsForZSet().scan(key, match);
+
+        Map<Object, Double> dataMap = cursor.stream().collect(
+                Collectors.toMap(ZSetOperations.TypedTuple::getValue, e -> Optional.of(e).map(ZSetOperations.TypedTuple::getScore).orElse(0.0)));
+
+        if (MapUtils.isEmpty(dataMap)) {
+            return Maps.newHashMap();
+        }
+        return dataMap;
     }
 
     /**
      * Count排序集合中分数在min和max之间的元素个数。
-     * 
+     *
      * @param key
      * @param min
      * @param max
@@ -56,30 +78,11 @@ public class RedisZSetUtil {
         return redisTemplate.opsForZSet().count(key, min, max);
     }
 
-    /**
-     * 匹配获取键值对，ScanOptions.NONE为获取全部键值对；ScanOptions.scanOptions().match("C").build()匹配获取键位map1的键值对,不能模糊匹配。
-     * 
-     * @param key
-     * @param count
-     * @param pattern
-     * @return
-     */
-    public LinkedHashMap<Object, Double> scan(String key, Long count, String pattern) {
-        ScanOptions match = new ScanOptions.ScanOptionsBuilder().count(count).match(pattern).build();
-        Cursor<ZSetOperations.TypedTuple<Object>> cursor = redisTemplate.opsForZSet().scan(key, match);
-
-        LinkedHashMap<Object, Double> maps = Maps.newLinkedHashMap();
-        while (cursor.hasNext()) {
-            ZSetOperations.TypedTuple<Object> typedTuple = cursor.next();
-            maps.put(typedTuple.getValue(), typedTuple.getScore());
-        }
-        return maps;
-    }
 
     /**
      * 用于获取满足非score的排序取值。
      * 这个排序只有在有相同分数的情况下才能使用，如果有不同的分数则返回值不确定。
-     * 
+     *
      * @param key
      * @param range
      */
@@ -89,7 +92,7 @@ public class RedisZSetUtil {
 
     /**
      * 根据设置的score获取区间值。
-     * 
+     *
      * @param key
      * @param min
      * @param max
@@ -100,24 +103,23 @@ public class RedisZSetUtil {
 
     /**
      * 索引倒序排列区间值。
-     * 
+     *
      * @param key
      * @param start
      * @param end
      */
-    public LinkedHashMap<Object, Double> reverseRangeWithScores(String key, long start, long end) {
+    public Map<Object, Double> reverseRangeWithScores(String key, long start, long end) {
         Set<ZSetOperations.TypedTuple<Object>> typedTupleSet =
-            redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
-        LinkedHashMap<Object, Double> maps = Maps.newLinkedHashMap();
-        typedTupleSet.stream().forEach(objectTypedTuple -> {
-            maps.put(objectTypedTuple.getValue(), objectTypedTuple.getScore());
-        });
-        return maps;
+                redisTemplate.opsForZSet().reverseRangeWithScores(key, start, end);
+
+        Map<Object, Double> dataMap = typedTupleSet.stream().collect(Collectors.toMap(ZSetOperations.TypedTuple::getValue, ZSetOperations.TypedTuple::getScore));
+
+        return dataMap;
     }
 
     /**
      * 获取倒序排列的索引值。
-     * 
+     *
      * @param key
      * @param value
      */
@@ -127,7 +129,7 @@ public class RedisZSetUtil {
 
     /**
      * 获取变量中元素的索引,下标开始位置为0。
-     * 
+     *
      * @param key
      * @param value
      */
@@ -137,7 +139,7 @@ public class RedisZSetUtil {
 
     /**
      * 修改元素的分值
-     * 
+     *
      * @param key
      * @param value
      * @param delta
@@ -148,25 +150,24 @@ public class RedisZSetUtil {
 
     /**
      * 正序获取RedisZSetCommands.Tuples的区间值通过分值。
-     * 
+     *
      * @param key
      * @param min
      * @param max
      * @return
      */
-    public LinkedHashMap<Object, Double> rangeByScoreWithScores(String key, Double min, Double max) {
+    public Map<Object, Double> rangeByScoreWithScores(String key, Double min, Double max) {
         Set<ZSetOperations.TypedTuple<Object>> typedTupleSet =
-            redisTemplate.opsForZSet().rangeByScoreWithScores(key, min, max);
-        LinkedHashMap<Object, Double> maps = Maps.newLinkedHashMap();
-        typedTupleSet.stream().forEach(objectTypedTuple -> {
-            maps.put(objectTypedTuple.getValue(), objectTypedTuple.getScore());
-        });
-        return maps;
+                redisTemplate.opsForZSet().rangeByScoreWithScores(key, min, max);
+
+        Map<Object, Double> dataMap = typedTupleSet.stream().collect(Collectors.toMap(ZSetOperations.TypedTuple::getValue, ZSetOperations.TypedTuple::getScore));
+
+        return dataMap;
     }
 
     /**
      * 倒序排序获取RedisZSetCommands.Tuples的分值区间值。
-     * 
+     *
      * @param key
      * @param min
      * @param max
@@ -177,23 +178,21 @@ public class RedisZSetUtil {
     }
 
     public Map<Object, Double> reverseRangeByScoreWithScores(String key, Double min, Double max, Long offset,
-        Long count) {
+                                                             Long count) {
         Set<ZSetOperations.TypedTuple<Object>> typedTupleSet = null;
         if (offset != null && count != null) {
             typedTupleSet = redisTemplate.opsForZSet().reverseRangeByScoreWithScores(key, min, max, offset, count);
         } else {
             typedTupleSet = redisTemplate.opsForZSet().reverseRangeByScoreWithScores(key, min, max);
         }
-        LinkedHashMap<Object, Double> maps = Maps.newLinkedHashMap();
-        typedTupleSet.stream().forEach(objectTypedTuple -> {
-            maps.put(objectTypedTuple.getValue(), objectTypedTuple.getScore());
-        });
-        return maps;
+        Map<Object, Double> dataMap = typedTupleSet.stream().collect(Collectors.toMap(ZSetOperations.TypedTuple::getValue, ZSetOperations.TypedTuple::getScore));
+
+        return dataMap;
     }
 
     /**
      * 在key和otherKeys中交叉排序集，并将结果存储在目标destKey中。
-     * 
+     *
      * @param key
      * @param otherKey
      * @param destKey
@@ -211,7 +210,7 @@ public class RedisZSetUtil {
     }
 
     public Long intersectAndStore(String key, List<String> otherKeys, String destKey,
-        RedisZSetCommands.Aggregate aggregate, RedisZSetCommands.Weights weights) {
+                                  RedisZSetCommands.Aggregate aggregate, RedisZSetCommands.Weights weights) {
         ArrayList<String> list = Lists.newArrayList(otherKeys);
         if (otherKeys.size() == 1) {
             return redisTemplate.opsForZSet().intersectAndStore(key, list.get(0), destKey);
@@ -226,7 +225,7 @@ public class RedisZSetUtil {
 
     /**
      * 获取元素的分值。
-     * 
+     *
      * @param key
      * @param value
      * @return
@@ -237,7 +236,7 @@ public class RedisZSetUtil {
 
     /**
      * 获取变量中元素的个数
-     * 
+     *
      * @param key
      */
     public Long count(String key) {
@@ -247,9 +246,9 @@ public class RedisZSetUtil {
     /**
      * 求指定集合与另一个集合的并集，并保存到目标集合
      *
-     * @param key 集合
+     * @param key      集合
      * @param otherKey 另一个集合
-     * @param destKey 目标集合
+     * @param destKey  目标集合
      * @return
      */
     public Long unionAndStore(String key, String otherKey, String destKey) {
@@ -259,9 +258,9 @@ public class RedisZSetUtil {
     /**
      * 求指定集合与另外多个集合的并集，并保存到目标集合
      *
-     * @param key 集合
+     * @param key      集合
      * @param otherKey 另外多个集合
-     * @param destKey 目标集合
+     * @param destKey  目标集合
      * @return
      */
     public Long unionAndStore(String key, Collection<String> otherKey, String destKey) {
@@ -270,7 +269,7 @@ public class RedisZSetUtil {
 
     /**
      * 移除元素
-     * 
+     *
      * @param key
      * @param values
      */
@@ -280,7 +279,7 @@ public class RedisZSetUtil {
 
     /**
      * 根据区间删除
-     * 
+     *
      * @param key
      * @param min
      * @param max
@@ -292,7 +291,7 @@ public class RedisZSetUtil {
 
     /**
      * 根据索引值移除区间元素。
-     * 
+     *
      * @param key
      * @param start
      * @param end
