@@ -1,30 +1,45 @@
 package com.luna.redis.util;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author luna@mac
  * 2021年04月10日 16:21
  */
 @Component
+@Slf4j
 public class RedisListUtil {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    private RedisKeyUtil                  redisKeyUtil;
+    private RedisKeyUtil redisKeyUtil;
+
+    public <T> T getRange(String key, long start, long end, TypeReference<T> typeReference) {
+        List<Object> range = getRange(key, start, end);
+        return JSON.parseObject(JSON.toJSONString(range), typeReference);
+    }
 
     /**
      * 获取list缓存的内容
      *
-     * @param key 键
+     * @param key   键
      * @param start 开始
-     * @param end 结束 0 到 -1代表所有值
+     * @param end   结束 0 到 -1 代表所有值
      * @return
      */
     public List<Object> getRange(String key, long start, long end) {
@@ -33,12 +48,13 @@ public class RedisListUtil {
 
     /**
      * 范围获取
-     * 
+     *
      * @param key
      * @return
      */
-    public List<Object> getRange(String key) {
-        return getRange(key, 0, -1);
+    public <T> T getRange(String key, TypeReference<T> typeReference) {
+        List<Object> range = getRange(key, 0, -1);
+        return JSON.parseObject(JSON.toJSONString(range), typeReference);
     }
 
     /**
@@ -54,12 +70,13 @@ public class RedisListUtil {
     /**
      * 通过索引 获取list中的值
      *
-     * @param key 键
+     * @param key   键
      * @param index 索引 index>=0时， 0 表头，1 第二个元素，依次类推；index<0时，-1，表尾，-2倒数第二个元素，依次类推
      * @return
      */
-    public Object getIndex(String key, long index) {
-        return redisTemplate.opsForList().index(key, index);
+    public <T> T getIndex(String key, long index, TypeReference<T> typeReference) {
+        Object object = redisTemplate.opsForList().index(key, index);
+        return JSON.parseObject(JSON.toJSONString(object), typeReference);
     }
     // ===============================list左侧弹出放到其他key的右侧================================
 
@@ -72,7 +89,7 @@ public class RedisListUtil {
 
     /**
      * 从srcKey列表中删除最后一个元素，将其添加到dstKey并返回其值。阻塞连接，直到达到可用元素或超时。
-     * 
+     *
      * @param sourceKey
      * @param destinationKey
      * @param time
@@ -126,7 +143,7 @@ public class RedisListUtil {
     /**
      * 右侧放入缓存
      *
-     * @param key 键
+     * @param key   键
      * @param value 值
      * @return
      */
@@ -137,9 +154,9 @@ public class RedisListUtil {
     /**
      * 带时间右侧放入缓存
      *
-     * @param key 键
-     * @param value 值
-     * @param time 时间(秒)
+     * @param key      键
+     * @param value    值
+     * @param time     时间(秒)
      * @param timeUnit 单位 默认秒
      * @return
      */
@@ -153,7 +170,7 @@ public class RedisListUtil {
     /**
      * 右侧List放入缓存
      *
-     * @param key 键
+     * @param key   键
      * @param value 值
      * @return
      */
@@ -164,9 +181,9 @@ public class RedisListUtil {
     /**
      * 带时间右侧放入缓存
      *
-     * @param key 键
+     * @param key   键
      * @param value 值
-     * @param time 时间(秒)
+     * @param time  时间(秒)
      * @return
      */
     public boolean rightPushAll(String key, List<Object> value, long time, TimeUnit timeUnit) {
@@ -181,7 +198,7 @@ public class RedisListUtil {
     /**
      * 左侧放入缓存
      *
-     * @param key 键
+     * @param key   键
      * @param value 值
      * @return
      */
@@ -192,9 +209,9 @@ public class RedisListUtil {
     /**
      * 带时间左侧放入缓存
      *
-     * @param key 键
-     * @param value 值
-     * @param time 时间(秒)
+     * @param key      键
+     * @param value    值
+     * @param time     时间(秒)
      * @param timeUnit 单位 默认秒
      * @return
      */
@@ -208,7 +225,7 @@ public class RedisListUtil {
     /**
      * 右侧List放入缓存
      *
-     * @param key 键
+     * @param key   键
      * @param value 值
      * @return
      */
@@ -219,9 +236,9 @@ public class RedisListUtil {
     /**
      * 带时间右侧放入缓存
      *
-     * @param key 键
+     * @param key   键
      * @param value 值
-     * @param time 时间(秒)
+     * @param time  时间(秒)
      * @return
      */
     public boolean leftPushAll(String key, List<Object> value, long time, TimeUnit timeUnit) {
@@ -234,7 +251,7 @@ public class RedisListUtil {
     /**
      * 根据索引修改list中的某条数据
      *
-     * @param key 键
+     * @param key   键
      * @param index 索引
      * @param value 值
      * @return
@@ -246,7 +263,7 @@ public class RedisListUtil {
     /**
      * 移除N个值为value
      *
-     * @param key 键
+     * @param key   键
      * @param count 移除多少个
      * @param value 值
      * @return 移除的个数
