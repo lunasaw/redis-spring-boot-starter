@@ -95,23 +95,23 @@ public class RedisStreamUtil {
 
     /**
      * 从用户组中删除用户。
-     * 
+     *
      * @param key
      * @param group
      * @param name
      */
-    public boolean deleteConsumer(String key, String group, String name) {
+    public Boolean deleteConsumer(String key, String group, String name) {
         return redisTemplate.opsForStream().deleteConsumer(key, Consumer.from(group, name));
     }
 
     /**
      * 摧毁一个消费群体。
-     * 
+     *
      * @param key
      * @param group
      * @return
      */
-    public boolean destroyGroup(String key, String group) {
+    public Boolean destroyGroup(String key, String group) {
         return redisTemplate.opsForStream().destroyGroup(key, group);
     }
 

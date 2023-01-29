@@ -83,18 +83,18 @@ public class RedisSetUtil {
      * @return true 存在 false不存在
      */
     public boolean hasKey(String key, Object value) {
-        return redisTemplate.opsForSet().isMember(key, value);
+        return Boolean.TRUE.equals(redisTemplate.opsForSet().isMember(key, value));
     }
 
     /**
      * 将数据放入set缓存
      *
-     * @param key 键
+     * @param key    键
      * @param values 值 可以是多个
      * @return 成功个数
      */
-    public boolean set(String key, Object... values) {
-        return redisTemplate.opsForSet().add(key, values) == values.length;
+    public Long set(String key, Object... values) {
+        return redisTemplate.opsForSet().add(key, values);
     }
 
     /**
@@ -106,7 +106,7 @@ public class RedisSetUtil {
      * @return 成功个数
      */
     public boolean set(String key, long time, TimeUnit timeUnit, Object... values) {
-        if (!set(key, values)) {
+        if (values.length != set(key, values)) {
             return false;
         }
         return redisKeyUtil.expire(key, time, timeUnit);
@@ -115,12 +115,12 @@ public class RedisSetUtil {
     /**
      * 移除值为value的
      *
-     * @param key 键
+     * @param key    键
      * @param values 值 可以是多个
      * @return 移除的个数
      */
-    public boolean remove(String key, Object... values) {
-        return redisTemplate.opsForSet().remove(key, values) == values.length;
+    public Long remove(String key, Object... values) {
+        return redisTemplate.opsForSet().remove(key, values);
     }
 
     /**

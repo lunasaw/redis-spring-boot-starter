@@ -33,22 +33,22 @@ public class RedisValueUtil {
 
     /**
      * 移位操作 获取bit
-     * 
+     *
      * @param key
      * @param offset
      */
-    public boolean getBit(String key, long offset) {
+    public Boolean getBit(String key, long offset) {
         return redisTemplate.opsForValue().getBit(key, offset);
     }
 
     /**
      * 获取当前位上的值
-     * 
+     *
      * @param key
      * @param offset
      * @param value
      */
-    public boolean setBit(String key, long offset, boolean value) {
+    public Boolean setBit(String key, long offset, boolean value) {
         return redisTemplate.opsForValue().setBit(key, offset, value);
     }
 
@@ -137,11 +137,11 @@ public class RedisValueUtil {
     /**
      * 如果key不存在，则设置key 的值为 value. 存在则不设置
      * 设置成功返回true 失败返回false
-     * 
+     *
      * @param key key不能为空
      * @param value 设置的值
      */
-    public boolean setIfAbsent(String key, Object value) {
+    public Boolean setIfAbsent(String key, Object value) {
         return redisTemplate.opsForValue().setIfAbsent(key, value);
     }
 
@@ -157,10 +157,10 @@ public class RedisValueUtil {
     /**
      * 把一个map的键值对添加到redis中，key-value 对应着 key value。 当且仅当map中的所有key都
      * 不存在的时候，添加成功返回 true，否则返回false.
-     * 
+     *
      * @param map map不能为空 可以为empty
      */
-    public boolean multiSetIfAbsent(Map<String, Object> map) {
+    public Boolean multiSetIfAbsent(Map<String, Object> map) {
         return redisTemplate.opsForValue().multiSetIfAbsent(map);
     }
 
