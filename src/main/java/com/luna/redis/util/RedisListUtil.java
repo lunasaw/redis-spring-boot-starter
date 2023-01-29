@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * @author luna@mac
@@ -147,8 +146,8 @@ public class RedisListUtil {
      * @param value 值
      * @return
      */
-    public boolean rightSet(String key, Object value) {
-        return redisTemplate.opsForList().rightPush(key, value) == 1;
+    public Long rightSet(String key, Object value) {
+        return redisTemplate.opsForList().rightPush(key, value);
     }
 
     /**
@@ -161,7 +160,7 @@ public class RedisListUtil {
      * @return
      */
     public boolean rightSet(String key, Object value, long time, TimeUnit timeUnit) {
-        if (!rightSet(key, value)) {
+        if (1 != rightSet(key, value)) {
             return false;
         }
         return redisKeyUtil.expire(key, time, timeUnit);
@@ -174,8 +173,8 @@ public class RedisListUtil {
      * @param value 值
      * @return
      */
-    public boolean rightSetAll(String key, List<Object> value) {
-        return redisTemplate.opsForList().rightPushAll(key, value) == value.size();
+    public Long rightSetAll(String key, List<Object> value) {
+        return redisTemplate.opsForList().rightPushAll(key, value);
     }
 
     /**
@@ -187,7 +186,7 @@ public class RedisListUtil {
      * @return
      */
     public boolean rightPushAll(String key, List<Object> value, long time, TimeUnit timeUnit) {
-        if (!rightSetAll(key, value)) {
+        if (value.size() != rightSetAll(key, value)) {
             return false;
         }
         return redisKeyUtil.expire(key, time, timeUnit);
@@ -202,8 +201,8 @@ public class RedisListUtil {
      * @param value 值
      * @return
      */
-    public boolean leftSet(String key, Object value) {
-        return redisTemplate.opsForList().leftPush(key, value) == 1;
+    public Long leftSet(String key, Object value) {
+        return redisTemplate.opsForList().leftPush(key, value);
     }
 
     /**
@@ -216,7 +215,7 @@ public class RedisListUtil {
      * @return
      */
     public boolean leftSet(String key, Object value, long time, TimeUnit timeUnit) {
-        if (!leftSet(key, value)) {
+        if (1 != leftSet(key, value)) {
             return false;
         }
         return redisKeyUtil.expire(key, time, timeUnit);
@@ -229,8 +228,8 @@ public class RedisListUtil {
      * @param value 值
      * @return
      */
-    public boolean leftSetAll(String key, List<Object> value) {
-        return redisTemplate.opsForList().leftPushAll(key, value) == value.size();
+    public Long leftSetAll(String key, List<Object> value) {
+        return redisTemplate.opsForList().leftPushAll(key, value);
     }
 
     /**
@@ -242,7 +241,7 @@ public class RedisListUtil {
      * @return
      */
     public boolean leftPushAll(String key, List<Object> value, long time, TimeUnit timeUnit) {
-        if (!leftSetAll(key, value)) {
+        if (value.size() != leftSetAll(key, value)) {
             return false;
         }
         return redisKeyUtil.expire(key, time, timeUnit);
@@ -264,14 +263,14 @@ public class RedisListUtil {
      * 移除N个值为value
      *
      * @param key   键
-     * @param count 移除多少个
+     * @param count 移除多少个 最多 getSize(key) 个
      * @param value 值
      * @return 移除的个数
      */
-    public boolean remove(String key, long count, Object value) {
-        if (getSize(key) != count) {
-            return false;
+    public Long remove(String key, long count, Object value) {
+        if (getSize(key) > count) {
+            count = getSize(key);
         }
-        return redisTemplate.opsForList().remove(key, count, value) == count;
+        return redisTemplate.opsForList().remove(key, count, value);
     }
 }
