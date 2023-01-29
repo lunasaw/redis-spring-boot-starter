@@ -138,7 +138,7 @@ public class RedisValueUtil {
      * 如果key不存在，则设置key 的值为 value. 存在则不设置
      * 设置成功返回true 失败返回false
      *
-     * @param key key不能为空
+     * @param key   key不能为空
      * @param value 设置的值
      */
     public Boolean setIfAbsent(String key, Object value) {
