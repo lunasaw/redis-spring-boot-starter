@@ -1,59 +1,27 @@
-# Compiled class file
-*.class
+# Created by .ignore support plugin (hsz.mobi)
+/operation-core/src/main/java/com/vdian/fenxiao/operation/core/param/ReportQueryDO.java
 
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-*.iws
 *.iml
-*.ipr
+*/*.iml
+.DS_Store
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-/build/
+## Directory-based project format:
+.idea/
 
-### VS Code ###
-.vscode/
+target/
+*/target/
 
-### eclipse ###
-/target
-/.mvn
-/.classpath
-/.settings
-/*/target
+*/WebContent
 
-## runtime ##
-/*/log
+*/deploy.local.sh
+*/.settings
+logs/
+*/logs
+.classpath
+.project
+build.properties
+*.class
+classes/
+.settings/org.eclipse.core.resources.prefs
+
+*/mvn.sh

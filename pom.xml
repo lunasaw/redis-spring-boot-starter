@@ -6,10 +6,14 @@
 
     <groupId>io.github.lunasaw</groupId>
     <artifactId>redis-spring-boot-starter</artifactId>
+    <packaging>pom</packaging>
     <name>redis-spring-boot-starter</name>
     <version>1.2.1-SNAPSHOT</version>
     <description>redis easy todo</description>
     <url>https://github.com/lunasaw/redis-spring-boot-starter</url>
+    <modules>
+        <module>redis-spring-boot-start-test</module>
+    </modules>
     <properties>
         <maven.test.skip>true</maven.test.skip>
         <java.version>1.8</java.version>

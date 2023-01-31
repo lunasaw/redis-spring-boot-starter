@@ -1,5 +1,7 @@
 package com.luna.redis.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import org.checkerframework.checker.units.qual.K;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,6 +22,10 @@ public class RedisValueUtil {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+
+    public <T> T get(String key, TypeReference<T> typeReference) {
+        return JSON.parseObject(JSON.toJSONString(get(key)), typeReference);
+    }
 
     /**
      * 普通缓存获取 根据 key 获取对应的value 如果key不存在则返回null
