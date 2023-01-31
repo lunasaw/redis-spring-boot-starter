@@ -1,9 +1,15 @@
 package com.luna.redis.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.collections4.CollectionUtils;
+import org.checkerframework.checker.units.qual.K;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -16,17 +22,50 @@ public class RedisHashUtil {
     private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    private RedisKeyUtil                  redisKeyUtil;
+    private RedisKeyUtil redisKeyUtil;
+
+    public <K, HK, V, T> V get(K key, HK item, TypeReference<T> typeReference) {
+        return JSON.parseObject(JSON.toJSONString(get(key, item)), typeReference);
+    }
+
+    public <T, HK> List<T> multiGet(String key, Set<HK> item, TypeReference<T> typeReference) {
+        return JSON.parseObject(JSON.toJSONString(multiGet(key, item)), typeReference);
+    }
+
+    public <K, HK, V, T> HashMap<K, V> multiGetForOne(K key, Set<HK> item, TypeReference<T> typeReference) {
+        HashMap<K, V> kvHashMap = Maps.newHashMapWithExpectedSize(item.size());
+        item.forEach(e -> {
+            boolean hasKey = hasKey(key, e);
+            if (hasKey) {
+                V value = get(key, e, typeReference);
+                K realKey = RedisKeyUtil.getRealKey(key, e);
+                kvHashMap.putIfAbsent(realKey, value);
+            }
+        });
+
+        return kvHashMap;
+    }
 
     /**
      * HashGet
      *
-     * @param key 键 不能为null
+     * @param key  键 不能为null
      * @param item 项 不能为null
      * @return 值
      */
-    public Object get(String key, String item) {
-        return redisTemplate.opsForHash().get(key, item);
+    public <K, HK> List<Object> multiGet(K key, Set<HK> item) {
+        return redisTemplate.opsForHash().multiGet(key.toString(), Lists.newArrayList(item));
+    }
+
+    /**
+     * HashGet
+     *
+     * @param key  键 不能为null
+     * @param item 项 不能为null
+     * @return 值
+     */
+    public <K, HK> Object get(K key, HK item) {
+        return redisTemplate.opsForHash().get(key.toString(), item);
     }
 
     /**
@@ -46,19 +85,24 @@ public class RedisHashUtil {
      * @param map 对应多个键值
      * @return true 成功 false 失败
      */
-    public void set(String key, Map<String, Object> map) {
+    public <K, T> void set(String key, Map<K, T> map) {
         redisTemplate.opsForHash().putAll(key, map);
+    }
+
+    public <K, T> boolean set(String key, Map<K, T> map, long time) {
+        set(key, map);
+        return redisKeyUtil.expire(key, time, TimeUnit.SECONDS);
     }
 
     /**
      * HashSet 并设置时间
      *
-     * @param key 键
-     * @param map 对应多个键值
+     * @param key  键
+     * @param map  对应多个键值
      * @param time 时间(秒)
      * @return true成功 false失败
      */
-    public boolean set(String key, Map<String, Object> map, long time, TimeUnit timeUnit) {
+    public <K, T> boolean set(String key, Map<K, T> map, long time, TimeUnit timeUnit) {
         set(key, map);
         return redisKeyUtil.expire(key, time, timeUnit);
     }
@@ -66,8 +110,8 @@ public class RedisHashUtil {
     /**
      * 向一张hash表中放入数据,如果不存在将创建
      *
-     * @param key 键
-     * @param item 项
+     * @param key   键
+     * @param item  项
      * @param value 值
      * @return true 成功 false失败
      */
@@ -78,10 +122,10 @@ public class RedisHashUtil {
     /**
      * 向一张hash表中放入数据,如果不存在将创建
      *
-     * @param key 键
-     * @param item 项
+     * @param key   键
+     * @param item  项
      * @param value 值
-     * @param time 时间(秒) 注意:如果已存在的hash表有时间,这里将会替换原有的时间
+     * @param time  时间(秒) 注意:如果已存在的hash表有时间,这里将会替换原有的时间
      * @return true 成功 false失败
      */
     public boolean put(String key, String item, Object value, long time, TimeUnit timeUnit) {
@@ -92,7 +136,7 @@ public class RedisHashUtil {
     /**
      * 删除hash表中的值
      *
-     * @param key 键 不能为null
+     * @param key      键 不能为null
      * @param hashKeys 项 可以使多个 不能为null
      */
     public void delete(String key, Object... hashKeys) {
@@ -102,20 +146,20 @@ public class RedisHashUtil {
     /**
      * 判断hash表中是否有该项的值
      *
-     * @param key 键 不能为null
+     * @param key  键 不能为null
      * @param item 项 不能为null
      * @return true 存在 false不存在
      */
-    public boolean hasKey(String key, String item) {
-        return redisTemplate.opsForHash().hasKey(key, item);
+    public <K, HK> boolean hasKey(K key, HK item) {
+        return redisTemplate.opsForHash().hasKey(key.toString(), item);
     }
 
     /**
      * hash递增 如果不存在,就会创建一个 并把新增后的值返回
      *
-     * @param key 键
+     * @param key  键
      * @param item 项
-     * @param by 要增加几(大于0)
+     * @param by   要增加几(大于0)
      * @return
      */
     public double increment(String key, String item, double by) {
@@ -125,9 +169,9 @@ public class RedisHashUtil {
     /**
      * hash递减
      *
-     * @param key 键
+     * @param key  键
      * @param item 项
-     * @param by 要减少记(小于0)
+     * @param by   要减少记(小于0)
      * @return
      */
     public double decrement(String key, String item, double by) {

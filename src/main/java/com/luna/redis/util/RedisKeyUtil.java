@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -18,8 +19,20 @@ import org.springframework.util.CollectionUtils;
 @Component
 public class RedisKeyUtil {
 
+    public static <K, HK> K getRealKey(K k, HK key) {
+        return (K) (k.toString() + key.toString());
+    }
+
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+
+    public Long execute(String script, List<String> keys, Object... args) {
+        // 指定 lua 脚本，并且指定返回值类型
+        DefaultRedisScript<Long> redisScript = new DefaultRedisScript<>(script, Long.class);
+        // 参数一：redisScript，参数二：key列表，参数三：arg（可多个）
+        Long execute = redisTemplate.execute(redisScript, keys, args);
+        return execute;
+    }
 
     /**
      * 移动key到指定DB
