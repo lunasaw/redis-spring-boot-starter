@@ -9,10 +9,7 @@ import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 解决缓存穿透
@@ -54,9 +51,9 @@ public class CacheQueryUtils {
     /**
      * 包装MGET,且解决缓存穿透问题
      *
-     * @param redisHashUtil
-     * @param req
-     * @param useCache
+     * @param redisHashUtil 操作key的bean
+     * @param req           入参
+     * @param useCache      是否使用缓存
      * @param <K>
      * @param <T>
      * @return

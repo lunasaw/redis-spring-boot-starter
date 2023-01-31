@@ -4,13 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.commons.collections4.CollectionUtils;
 import org.checkerframework.checker.units.qual.K;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author luna@mac
@@ -28,18 +28,21 @@ public class RedisHashUtil {
         return JSON.parseObject(JSON.toJSONString(get(key, item)), typeReference);
     }
 
-    public <T, HK> List<T> multiGet(String key, Set<HK> item, TypeReference<T> typeReference) {
-        return JSON.parseObject(JSON.toJSONString(multiGet(key, item)), typeReference);
+    public <T, HK> List<Object> multiGet(String key, Set<HK> item, TypeReference<T> typeReference) {
+        List<Object> list = multiGet(key, item);
+        return list.stream().map(JSON::toJSONString).map(e -> JSON.parseObject(e, typeReference)).collect(Collectors.toList());
     }
 
-    public <K, HK, V, T> HashMap<K, V> multiGetForOne(K key, Set<HK> item, TypeReference<T> typeReference) {
+    public <K, HK, V, T> HashMap<K, V> multiGetForOne(K key, Set<HK> item, TypeReference<T> typeReference, V defaultValue) {
         HashMap<K, V> kvHashMap = Maps.newHashMapWithExpectedSize(item.size());
         item.forEach(e -> {
             boolean hasKey = hasKey(key, e);
+            K realKey = RedisKeyUtil.getRealKey(key, e);
             if (hasKey) {
                 V value = get(key, e, typeReference);
-                K realKey = RedisKeyUtil.getRealKey(key, e);
                 kvHashMap.putIfAbsent(realKey, value);
+            } else {
+                kvHashMap.putIfAbsent(realKey, defaultValue);
             }
         });
 
