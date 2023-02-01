@@ -24,7 +24,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.luna.commons" additivity="false" level="INFO">
+    <logger name="io.github.lunasaw" additivity="false" level="INFO">
         <appender-ref ref="STDOUT"/>
     </logger>
 

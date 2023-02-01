@@ -8,7 +8,7 @@
     <artifactId>redis-spring-boot-starter</artifactId>
     <packaging>pom</packaging>
     <name>redis-spring-boot-starter</name>
-    <version>${redis-spring-boot-starter.version}</version>
+    <version>1.2.2-SNAPSHOT</version>
     <description>redis easy todo</description>
     <url>https://github.com/lunasaw/redis-spring-boot-starter</url>
     <modules>
