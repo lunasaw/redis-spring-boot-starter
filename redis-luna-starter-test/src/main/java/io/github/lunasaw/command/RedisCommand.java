@@ -1,8 +1,11 @@
 package io.github.lunasaw.command;
 
+import io.github.lunasaw.domain.User;
 import io.github.lunasaw.util.RedisKeyUtil;
 import io.github.lunasaw.util.RedisValueUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.shell.Availability;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -18,6 +21,7 @@ import java.util.Set;
  */
 @Component
 @ShellComponent
+@Slf4j
 public class RedisCommand {
 
     @Autowired
