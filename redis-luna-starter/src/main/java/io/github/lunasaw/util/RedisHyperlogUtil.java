@@ -1,4 +1,4 @@
-package com.luna.redis.util;
+package io.github.lunasaw.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,7 +16,7 @@ public class RedisHyperlogUtil {
 
     /**
      * 添加元素
-     * 
+     *
      * @param key
      * @param values
      */
@@ -26,7 +26,7 @@ public class RedisHyperlogUtil {
 
     /**
      * 删除整个键值对
-     * 
+     *
      * @param key
      */
     public void delete(String key) {
@@ -35,7 +35,7 @@ public class RedisHyperlogUtil {
 
     /**
      * 统计多个键值之间的不重复个数 有误差 0.81%
-     * 
+     *
      * @param keys
      */
     public Long size(String... keys) {
@@ -44,7 +44,7 @@ public class RedisHyperlogUtil {
 
     /**
      * 将给定sourceKeys的所有值合并为目标键。
-     * 
+     *
      * @param destination 目标存储键
      * @param sourceKeys
      * @return

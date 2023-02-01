@@ -1,15 +1,18 @@
-package com.luna.redis.util;
+package io.github.lunasaw.util;
 
 import com.alibaba.fastjson.TypeReference;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.luna.redis.util.inter.Namespace;
+import io.github.lunasaw.util.inter.Namespace;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 解决缓存穿透

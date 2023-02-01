@@ -1,7 +1,6 @@
-package com.luna.redis.util;
+package io.github.lunasaw.util;
 
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.units.qual.K;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.stream.*;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -21,7 +20,7 @@ public class RedisStreamUtil {
 
     /**
      * 确认已处理的一个或多个记录。
-     * 
+     *
      * @param key
      * @param group
      * @param recordIds
@@ -37,7 +36,7 @@ public class RedisStreamUtil {
 
     /**
      * 确认给定记录已处理。
-     * 
+     *
      * @param key
      * @param group
      * @param value
@@ -46,13 +45,13 @@ public class RedisStreamUtil {
      */
     public Long acknowledge(String key, String group, Object value, String recordId) {
         Record record =
-            StreamRecords.objectBacked(value).withId(RecordId.of(recordId)).withStreamKey(key);
+                StreamRecords.objectBacked(value).withId(RecordId.of(recordId)).withStreamKey(key);
         return redisTemplate.opsForStream().acknowledge(group, record);
     }
 
     /**
      * 将记录追加到流键。
-     * 
+     *
      * @param key
      * @param content
      * @return
@@ -63,7 +62,7 @@ public class RedisStreamUtil {
 
     public RecordId add(String key, Object value, String recordId) {
         Record record =
-            StreamRecords.objectBacked(value).withId(RecordId.of(recordId)).withStreamKey(key);
+                StreamRecords.objectBacked(value).withId(RecordId.of(recordId)).withStreamKey(key);
         return redisTemplate.opsForStream().add(record);
     }
 
@@ -81,7 +80,7 @@ public class RedisStreamUtil {
 
     /**
      * 从流中删除给定的记录。
-     * 
+     *
      * @param key
      * @param recordIds
      */
@@ -117,7 +116,7 @@ public class RedisStreamUtil {
 
     /**
      * 创建用户组。如果流不存在，则此命令创建流。
-     * 
+     *
      * @param key
      * @param group
      * @param offset

@@ -1,4 +1,4 @@
-package com.luna.redis.util.inter;
+package io.github.lunasaw.util.inter;
 
 /**
  * @author chenzhangyue

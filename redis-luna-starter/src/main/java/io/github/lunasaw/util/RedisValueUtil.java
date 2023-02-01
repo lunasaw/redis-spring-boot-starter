@@ -1,11 +1,9 @@
-package com.luna.redis.util;
+package io.github.lunasaw.util;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import org.checkerframework.checker.units.qual.K;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -60,7 +58,7 @@ public class RedisValueUtil {
 
     /**
      * 计数
-     * 
+     *
      * @param key
      * @return
      */
@@ -73,9 +71,9 @@ public class RedisValueUtil {
      * 0 -1 整个key的值
      * -4 -1 从尾部开始往前截长度为4
      *
-     * @param key 不能为null
+     * @param key   不能为null
      * @param start 起始位置
-     * @param end 结束位置
+     * @param end   结束位置
      * @see <a href="http://redis.io/commands/getrange">Redis Documentation: GETRANGE</a>
      */
     public String get(String key, long start, long end) {
@@ -95,8 +93,8 @@ public class RedisValueUtil {
      * 普通缓存放入
      * 如果key不存在添加key 保存值为value
      * 如果key存在则对value进行覆盖
-     * 
-     * @param key 键
+     *
+     * @param key   键
      * @param value 值
      * @return true成功 false失败
      */
@@ -109,8 +107,8 @@ public class RedisValueUtil {
      * 如果key不存在，则等于新增。长度大于0则先补空格 set("key10", "abc", 3) 得到结果为：
      * 3空格 +"abc"
      *
-     * @param key 不能为null
-     * @param value 值
+     * @param key    不能为null
+     * @param value  值
      * @param offset 开始的位置
      */
     public void set(String key, Object value, long offset) {
@@ -120,9 +118,9 @@ public class RedisValueUtil {
     /**
      * 普通缓存放入并设置时间
      *
-     * @param key 键
+     * @param key   键
      * @param value 值
-     * @param time 时间(秒) time要大于0 如果time小于等于0 将设置无限期
+     * @param time  时间(秒) time要大于0 如果time小于等于0 将设置无限期
      * @return true成功 false 失败
      */
     public void set(String key, Object value, long time, TimeUnit timeUnit) {
@@ -132,7 +130,7 @@ public class RedisValueUtil {
     /**
      * 为 key的值末尾追加 value 如果key不存在就直接等于 set(K key, V value)
      *
-     * @param key 不能为null
+     * @param key   不能为null
      * @param value 追加的值
      * @see <a href="http://redis.io/commands/append">Redis Documentation: APPEND</a>
      */
@@ -153,7 +151,7 @@ public class RedisValueUtil {
 
     /**
      * 把一个map的键值对添加到redis中，key-value 对应着 key value。如果key已经存在就覆盖，
-     * 
+     *
      * @param map 不能为null 为null抛出空指针异常 可以为空集合
      */
     public void multiSet(Map<String, Object> map) {
@@ -172,7 +170,7 @@ public class RedisValueUtil {
 
     /**
      * 根据提供的key集合按顺序获取对应的value值
-     * 
+     *
      * @param keys 集合不能为null 可以为empty 集合
      */
     public List<Object> multiGet(Collection<String> keys) {
@@ -182,7 +180,7 @@ public class RedisValueUtil {
     /**
      * 递增 为key 的值加上 long delta. 原来的值必须是能转换成Integer类型的。否则会抛出异常。
      *
-     * @param key 键
+     * @param key   键
      * @param delta 要增加几(大于0)
      * @return
      */
@@ -194,7 +192,7 @@ public class RedisValueUtil {
      * 为key 的值加上 double delta. 原来的值必须是能转换成Integer类型的。否则会抛出异常。
      * 添加double后不能再加整数。已经无法在转换为Integer
      *
-     * @param key 不能为null
+     * @param key   不能为null
      * @param delta 增加的值
      */
     public Double increment(String key, double delta) {
@@ -204,7 +202,7 @@ public class RedisValueUtil {
     /**
      * 递减
      *
-     * @param key 键
+     * @param key   键
      * @param delta 要减少几(小于0)
      * @return
      */
