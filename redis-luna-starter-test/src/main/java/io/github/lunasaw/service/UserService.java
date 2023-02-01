@@ -21,4 +21,9 @@ public class UserService {
         log.info("addUser::user = {}", user);
         return user;
     }
+
+    public Boolean delUser(Long userId) {
+        log.info("delUser::userId = {}", userId);
+        return true;
+    }
 }
