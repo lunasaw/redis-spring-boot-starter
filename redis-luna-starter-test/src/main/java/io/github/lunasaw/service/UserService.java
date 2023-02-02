@@ -10,6 +10,7 @@ import io.github.lunasaw.util.CacheQueryUtils;
 import io.github.lunasaw.util.RedisHashUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -36,15 +37,14 @@ public class UserService {
     LoadingCache<String, User> loadingCache = CacheBuilder.newBuilder()
             .maximumSize(100L)
             .expireAfterWrite(defaultExpireTime, TimeUnit.MINUTES)
-            .removalListener(new RemovalListener<Object, Object>() {
-                @Override
-                public void onRemoval(RemovalNotification<Object, Object> notification) {
-                    log.info("onRemoval::notification = {}", notification);
-                }
-            })
+            .removalListener(notification -> log.info("onRemoval::notification = {}", notification))
             .build(new CacheLoader<String, User>() {
-                public User load(String key) {
+                @NotNull
+                public User load(@NotNull String key) {
                     Map<String, User> userMap = batchQuery(Collections.singletonList(key));
+                    if (userMap.get(key) == null) {
+                        return new User();
+                    }
                     return userMap.get(key);
                 }
             });
@@ -52,8 +52,7 @@ public class UserService {
     @SneakyThrows
     public Map<String, User> getUserByLocalCache(List<String> userId) {
         ImmutableMap<String, User> all = loadingCache.getAll(userId);
-        HashMap<String, User> hashMap = Maps.newHashMap(all);
-        return hashMap;
+        return Maps.newHashMap(all);
     }
 
     public Map<String, User> batchQuery(List<String> userIds) {
@@ -61,7 +60,7 @@ public class UserService {
         List<String> strUserIds = userIds.stream().map(String::valueOf).collect(Collectors.toList());
         req.setKeys(strUserIds);
         req.setNamespace(() -> USER_LIST);
-        req.setExpiredTime(20);
+        req.setExpiredTime(defaultExpireTime);
 
         req.setSql(keys -> batchQueryUserIds(strUserIds));
         req.setTypeReference(() -> new TypeReference<User>() {
