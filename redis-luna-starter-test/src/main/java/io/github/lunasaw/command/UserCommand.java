@@ -1,5 +1,6 @@
 package io.github.lunasaw.command;
 
+import com.google.common.collect.Lists;
 import io.github.lunasaw.domain.User;
 import io.github.lunasaw.service.UserService;
 import org.apache.commons.lang3.RandomUtils;
@@ -11,6 +12,8 @@ import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 /**
  * @author chenzhangyue
@@ -41,5 +44,11 @@ public class UserCommand {
     @CacheEvict(value = "userCache", key = "#userId", allEntries = false, beforeInvocation = true)
     public Boolean delUser(@ShellOption(defaultValue = "123") Long userId) {
         return userService.delUser(userId);
+    }
+
+    @ShellMethod("local get user")
+    public User localGetUser(@ShellOption(defaultValue = "123") Long userId) {
+        Map<String, User> localCache = userService.getUserByLocalCache(Lists.newArrayList(String.valueOf(userId)));
+        return localCache.get(userId.toString());
     }
 }

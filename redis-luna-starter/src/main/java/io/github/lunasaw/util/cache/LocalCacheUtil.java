@@ -1,18 +1,14 @@
 package io.github.lunasaw.util.cache;
-
-import com.google.common.base.Splitter;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Sets;
-import io.github.lunasaw.util.RedisHashUtil;
+import io.github.lunasaw.util.RedisValueUtil;
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,24 +17,29 @@ import java.util.concurrent.TimeUnit;
  */
 @Component
 @Data
-public class LocalCacheUtil {
+public class LocalCacheUtil<K, T> {
 
     @Autowired
-    private RedisHashUtil redisHashUtil;
+    private RedisValueUtil redisValueUtil;
 
     private String localKey;
 
-    LoadingCache<String, Object> masterLevelSettingCache = CacheBuilder.newBuilder()
+    LoadingCache<String, Object> loadingCache = CacheBuilder.newBuilder()
             .maximumSize(100L)
             .expireAfterWrite(2L, TimeUnit.MINUTES)
 
             .build(new CacheLoader<String, Object>() {
                 public Object load(String key) {
-                    List<String> list = Splitter.on("_").splitToList(key);
-
-                    return redisHashUtil.multiGet(localKey, Sets.newHashSet(list));
+                    return redisValueUtil.get(key);
                 }
             });
 
+    @SneakyThrows
+    public Object get(String key) {
+        return loadingCache.get(key);
+    }
 
+    public void set(String key, Object value) {
+        loadingCache.put(key, value);
+    }
 }

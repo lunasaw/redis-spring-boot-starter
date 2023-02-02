@@ -3,6 +3,7 @@ package io.github.lunasaw.command;
 import io.github.lunasaw.domain.User;
 import io.github.lunasaw.util.RedisKeyUtil;
 import io.github.lunasaw.util.RedisValueUtil;
+import io.github.lunasaw.util.cache.LocalCacheUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -29,6 +30,9 @@ public class RedisCommand {
 
     @Autowired
     private RedisValueUtil redisValueUtil;
+
+    @Autowired
+    private LocalCacheUtil localCacheUtil;
 
     @ShellMethod("get key")
     public Set<String> get(String key) {
@@ -63,5 +67,16 @@ public class RedisCommand {
         return b
                 ? Availability.available()
                 : Availability.unavailable("-- you are not connected");
+    }
+
+    @ShellMethod("local key")
+    public String localGet(String key) {
+        return localCacheUtil.get(key).toString();
+    }
+
+    @ShellMethod("local put")
+    public String localPut(String key, Object value) {
+        localCacheUtil.set(key, value);
+        return "success";
     }
 }

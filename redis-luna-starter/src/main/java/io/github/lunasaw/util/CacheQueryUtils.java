@@ -1,10 +1,12 @@
 package io.github.lunasaw.util;
 
 import com.alibaba.fastjson.TypeReference;
+import com.google.common.cache.CacheLoader;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.github.lunasaw.util.inter.Namespace;
+import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -19,6 +21,7 @@ import java.util.Map;
  */
 public class CacheQueryUtils {
     @Setter
+    @Getter
     public static class Req<K, T> {
 
         private List<K> keys;

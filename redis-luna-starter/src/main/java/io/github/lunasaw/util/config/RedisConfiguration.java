@@ -1,6 +1,7 @@
 package io.github.lunasaw.util.config;
 
 import io.github.lunasaw.util.*;
+import io.github.lunasaw.util.cache.LocalCacheUtil;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +40,12 @@ public class RedisConfiguration {
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
         template.afterPropertiesSet();
         return template;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public LocalCacheUtil localCacheUtil() {
+        return new LocalCacheUtil();
     }
 
     @Bean
