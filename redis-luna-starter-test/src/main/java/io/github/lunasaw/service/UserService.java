@@ -1,10 +1,7 @@
 package io.github.lunasaw.service;
 
 import com.alibaba.fastjson.TypeReference;
-import com.google.common.base.Splitter;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.google.common.cache.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -39,7 +36,12 @@ public class UserService {
     LoadingCache<String, User> loadingCache = CacheBuilder.newBuilder()
             .maximumSize(100L)
             .expireAfterWrite(defaultExpireTime, TimeUnit.MINUTES)
-
+            .removalListener(new RemovalListener<Object, Object>() {
+                @Override
+                public void onRemoval(RemovalNotification<Object, Object> notification) {
+                    log.info("onRemoval::notification = {}", notification);
+                }
+            })
             .build(new CacheLoader<String, User>() {
                 public User load(String key) {
                     Map<String, User> userMap = batchQuery(Collections.singletonList(key));
@@ -85,7 +87,12 @@ public class UserService {
     }
 
     public Boolean delUser(Long userId) {
+        if (userId == null) {
+            return true;
+        }
         log.info("delUser::userId = {}", userId);
+        redisHashUtil.delete(USER_LIST, userId);
+        loadingCache.invalidate(userId.toString());
         return true;
     }
 
