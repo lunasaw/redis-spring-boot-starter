@@ -94,21 +94,21 @@ public class CacheQueryUtils {
         /*--------------------- db补数据 ---------------------*/
         if (CollectionUtils.isNotEmpty(noCacheIds)) {
             List<T> settingList = req.sql.run(noCacheIds);
-            Map<K, T> settingDOMap = list2Map(settingList, req.keyGenerate);
+            Map<K, T> dbDOMap = list2Map(settingList, req.keyGenerate);
             if (CollectionUtils.isNotEmpty(settingList)) {
-                rMap.putAll(settingDOMap);
+                rMap.putAll(dbDOMap);
             }
 
             if (rwCache) {
                 //缓存数据填充
                 Map<K, T> cacheMap = Maps.newHashMap();
                 for (K key : noCacheIds) {
-                    T settingDO = settingDOMap.get(key);
-                    if (settingDO == null) {
+                    T t = dbDOMap.get(key);
+                    if (t == null) {
                         //mock数据
-                        settingDO = req.mock.run();
+                        t = req.mock.run();
                     }
-                    cacheMap.put(key, settingDO);
+                    cacheMap.put(key, t);
                 }
 
                 redisHashUtil.set(req.namespace.getNamespace(), cacheMap, req.expiredTime);

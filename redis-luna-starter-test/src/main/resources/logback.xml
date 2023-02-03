@@ -15,8 +15,12 @@
 
     <appender name="serverLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_HOME}/server.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_HOME}/server.%d{yyyy-MM-dd}.log</fileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/server.%d{yyyy-MM-dd}.log.%i</fileNamePattern>
+            <maxHistory>0</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+            <maxFileSize>500MB</maxFileSize>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
         <encoder>
             <pattern>%d %X{traceId} %p [%thread] (%file:%line\) - %m %X{uri}%n</pattern>
@@ -24,12 +28,12 @@
         </encoder>
     </appender>
 
-    <logger name="io.github.lunasaw" additivity="false" level="INFO">
-        <appender-ref ref="STDOUT"/>
+    <logger name="io.github" additivity="false" level="INFO">
+        <appender-ref ref="serverLog"/>
     </logger>
 
     <!-- 控制台输出日志 -->
-    <root level="info">
+    <root level="error">
         <appender-ref ref="STDOUT"/>
     </root>
 </configuration>

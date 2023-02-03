@@ -39,12 +39,8 @@ public class UserService {
             .expireAfterWrite(defaultExpireTime, TimeUnit.MINUTES)
             .removalListener(notification -> log.info("onRemoval::notification = {}", notification))
             .build(new CacheLoader<String, User>() {
-                @NotNull
                 public User load(@NotNull String key) {
                     Map<String, User> userMap = batchQuery(Collections.singletonList(key));
-                    if (userMap.get(key) == null) {
-                        return new User();
-                    }
                     return userMap.get(key);
                 }
             });
@@ -65,7 +61,7 @@ public class UserService {
         req.setSql(keys -> batchQueryUserIds(strUserIds));
         req.setTypeReference(() -> new TypeReference<User>() {
         });
-        req.setKeyGenerate(value -> value.getUserId().toString());
+        req.setKeyGenerate(value -> Optional.ofNullable(value).map(User::getUserId).map(String::valueOf).orElse(null));
         req.setValidate(t -> (t != null && t.getUserId() != null));
         req.setMock(User::new);
 
